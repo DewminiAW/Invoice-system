@@ -1,34 +1,51 @@
-package org.invoiceSystem.dto;
+package org.invoiceSystem.entity;
 
+import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Customer{
+@Entity
+@Table(name = "customers")
+public class Customer {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "email", unique = true)
     private String email;
+
+    @Column(name = "phone")
     private String phone;
+
+    @Column(name = "address", length = 500)
     private String address;
+
+    @Column(name = "company")
     private String company;
+
+    @Column(name = "tax_number")
     private String taxNumber;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<Invoice> invoices = new ArrayList<>();
+
+    @Column(name = "created_at")
     private LocalDate createdAt;
 
-    // Default constructor
+    // Constructors
     public Customer() {
+        this.createdAt = LocalDate.now();
     }
 
-    // Constructor with fields
-    public Customer(Long id, String name, String email, String phone,
-                       String address, String company, String taxNumber,
-                       LocalDate createdAt) {
-        this.id = id;
+    public Customer(String name, String email) {
         this.name = name;
         this.email = email;
-        this.phone = phone;
-        this.address = address;
-        this.company = company;
-        this.taxNumber = taxNumber;
-        this.createdAt = createdAt;
+        this.createdAt = LocalDate.now();
     }
 
     // Getters and Setters
@@ -86,6 +103,14 @@ public class Customer{
 
     public void setTaxNumber(String taxNumber) {
         this.taxNumber = taxNumber;
+    }
+
+    public List<Invoice> getInvoices() {
+        return invoices;
+    }
+
+    public void setInvoices(List<Invoice> invoices) {
+        this.invoices = invoices;
     }
 
     public LocalDate getCreatedAt() {

@@ -1,29 +1,44 @@
-package org.invoiceSystem.dto;
+package org.invoiceSystem.entity;
 
+import javax.persistence.*;
+        import java.time.LocalDate;
+
+@Entity
+@Table(name = "invoice_items")
 public class InvoiceItem {
 
-
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private ProductDto product;
+
+    @ManyToOne
+    @JoinColumn(name = "invoice_id", nullable = false)
+    private Invoice invoice;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
+
+    @Column(name = "description", nullable = false)
     private String description;
-    private Integer quantity;
-    private Double unitPrice;
-    private Double total;
 
-    // Default constructor
-    public InvoiceItem() {
-    }
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity = 1;
 
-    // Constructor with fields
-    public InvoiceItem(Long id, ProductDto product, String description,
-                          Integer quantity, Double unitPrice, Double total) {
-        this.id = id;
-        this.product = product;
+    @Column(name = "unit_price", nullable = false)
+    private Double unitPrice = 0.0;
+
+    @Column(name = "total")
+    private Double total = 0.0;
+
+    // Constructors
+    public InvoiceItem() {}
+
+    public InvoiceItem(String description, Integer quantity, Double unitPrice) {
         this.description = description;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
-        this.total = total;
+        calculateTotal();
     }
 
     // Getters and Setters
@@ -35,12 +50,25 @@ public class InvoiceItem {
         this.id = id;
     }
 
-    public ProductDto getProduct() {
+    public Invoice getInvoice() {
+        return invoice;
+    }
+
+    public void setInvoice(Invoice invoice) {
+        this.invoice = invoice;
+    }
+
+    public Product getProduct() {
         return product;
     }
 
-    public void setProduct(ProductDto product) {
+    public void setProduct(Product product) {
         this.product = product;
+        if (product != null) {
+            this.description = product.getName();
+            this.unitPrice = product.getPrice();
+            calculateTotal();
+        }
     }
 
     public String getDescription() {
@@ -57,6 +85,7 @@ public class InvoiceItem {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+        calculateTotal();
     }
 
     public Double getUnitPrice() {
@@ -65,6 +94,7 @@ public class InvoiceItem {
 
     public void setUnitPrice(Double unitPrice) {
         this.unitPrice = unitPrice;
+        calculateTotal();
     }
 
     public Double getTotal() {
@@ -73,5 +103,9 @@ public class InvoiceItem {
 
     public void setTotal(Double total) {
         this.total = total;
+    }
+
+    public void calculateTotal() {
+        this.total = this.quantity * this.unitPrice;
     }
 }
